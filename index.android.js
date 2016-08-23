@@ -12,7 +12,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image
+  Image,
+  ScrollView,
 } from 'react-native';
 
 class test extends Component {
@@ -25,10 +26,12 @@ class test extends Component {
        bmi:0,
        result:"",
        page:'',
-       active:false
+       active:false,
+       pokemons: [],
+       limit:0
      }
    }
-    onPress = () => {
+ /*   onPress = () => {
     console.log('pressed');
     var bmi=this.state.weight/(this.state.height/100*this.state.height/100);
     var result="";
@@ -40,41 +43,63 @@ class test extends Component {
     this.setState({result:result});
     this.setState({bmi:bmi});
     this.setState({active:active});
-    }
+    }*/
+
+      fetchPokemons = () => {
+          console.log("press");
+      const url = `http://pokeapi.co/api/v2/pokemon/?limit=${this.state.limit}&offset=0`;
+         fetch(url)
+             .then((pokemonlist) => pokemonlist.json())
+             .then((pokemonlistJson) => {
+               console.log(pokemonlistJson);
+              // this.setState({pokemons: responseJson});
+              let pokemons =[] ;
+              let i=0;
+              for(let pokemon of pokemonlistJson.results) {
+                      i++;
+                      pokemons.push({
+                         name:pokemon.name,
+                         pic:`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i}.png`,
+                      });
+              }
+               this.setState({pokemons})
+              return pokemonlistJson;
+             })
+             .catch((error) => {
+             console.error(error);
+           });
+      }
+      renderPokemonList = () => {
+       return  this.state.pokemons.map((pokemon ,i) => {
+             return (
+                <View key={i} style={{justifyContent: 'center', alignItems: 'center'}}>
+                  <View style={{borderBottomWidth: 6,borderBottomColor: '#BBB'}}>
+                    <Text>{pokemon.name}</Text>
+                    <Image style={styles.logo} source={{uri: pokemon.pic}}/>
+                  </View>
+                </View>
+             );
+             
+         });
+     }
   render() {
     return (
       <View style={[styles.container,this.state.active && styles.button]}>
-         <Image
-           style={styles.logo}
-           source={{uri: 'http://facebook.github.io/react/img/logo_og.png'}}
-         />
-         <Text>身高</Text>
+  
+         <Text>limit</Text>
          <TextInput
-          style={{height: 40, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(height) => this.setState({height})}
-          value={`${this.state.height}`}
-        />
-        <Text>體重</Text>
-         <TextInput
-          style={{height: 40, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(weight) => this.setState({weight})}
-          value={`${this.state.weight}`}
-        />
-        <TouchableOpacity onPress={this.onPress}>
-          <Text>button</Text>
-        </TouchableOpacity>
-        <Text>{this.state.bmi}</Text>
-        <Text>狀態</Text>
-        <Text>{this.state.result}</Text>
-        <TextInput
-          style={{height: 40, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(page) => this.setState({page})}
-          value={`${this.state.page}`}
-        />
-        <Image
-           style={styles.logo}
-           source={{uri: `https://pokeadvisor.com/img/mon/${this.state.page}.png`}}
+          style={{height: 40, flexDirection:'column', borderColor: 'gray', borderWidth: 1}}
+          onChangeText={limit => this.setState({limit})}
+          value={`${this.state.limit}`}
          />
+       
+           <TouchableOpacity onPress={this.fetchPokemons}>
+            <Text>  抓寶可夢瞜!</Text>
+           </TouchableOpacity>
+        <ScrollView style={{ alignSelf: 'stretch', backgroundColor: 'lightblue'}}>
+            {this.renderPokemonList()}
+          </ScrollView>
+        
       </View>
     );
   }
@@ -87,10 +112,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    flexDirection:'row',
-    justifyContent: 'center',
+    flexDirection:'column',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    justifyContent:'center',
   },
   welcome: {
     fontSize: 20,
@@ -98,16 +123,13 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   instructions: {
-    flex:1,
     textAlign: 'center',
     color: '#ff5533',
     marginBottom: 5,
   },
   logo:{
-    justifyContent: 'center',
-    flex:1,
-    height: 70,
-    width: 90 
+    height: 140,
+    width: 160
   }
 });
 
