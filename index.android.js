@@ -14,6 +14,7 @@ import {
   View,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 
 class test extends Component {
@@ -27,7 +28,9 @@ class test extends Component {
        result:"",
        page:'',
        active:false,
+       id:0,
        pokemons: [],
+       stats:[],
        limit:0
      }
    }
@@ -45,37 +48,80 @@ class test extends Component {
     this.setState({active:active});
     }*/
 
-      fetchPokemons = () => {
-          console.log("press");
-      const url = `http://pokeapi.co/api/v2/pokemon/?limit=${this.state.limit}&offset=0`;
-         fetch(url)
-             .then((pokemonlist) => pokemonlist.json())
-             .then((pokemonlistJson) => {
-               console.log(pokemonlistJson);
-              // this.setState({pokemons: responseJson});
-              let pokemons =[] ;
-              let i=0;
-              for(let pokemon of pokemonlistJson.results) {
-                      i++;
-                      pokemons.push({
-                         name:pokemon.name,
-                         pic:`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i}.png`,
-                      });
-              }
-               this.setState({pokemons})
-              return pokemonlistJson;
+    fetchPokemons = () => {
+        console.log("press");
+        const url = `http://pokeapi.co/api/v2/pokemon/?limit=${this.state.limit}&offset=0`;
+            fetch(url)
+            .then((pokemonlist) => pokemonlist.json())
+            .then((pokemonlistJson) => {
+                console.log(pokemonlistJson);
+                // this.setState({pokemons: responseJson});
+                let pokemons =[] ;
+                let i=0;
+                for(let pokemon of pokemonlistJson.results) {
+                    i++;
+                    pokemons.push({
+                    id: i,
+                    name:pokemon.name,
+                    pic:`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i}.png`,
+                    });
+                }
+                this.setState({pokemons});
+                return pokemonlistJson;
              })
              .catch((error) => {
              console.error(error);
            });
       }
+      
+      fetchPokemonsDetails = () => {
+        console.log("press");
+        const url = `http://pokeapi.co/api/v2/pokemon/${this.state.id}/`;
+            fetch(url)
+            .then((detaillist) => detaillist.json())
+            .then((detaillistJson) => {
+                console.log(detaillistJson);
+                // this.setState({pokemons: responseJson});
+                let stats =[] ;
+                for(let pokemon of detaillistJson.stats) {
+                    stats.push({
+                    name:pokemon.stat.name,
+                    base_stat:pokemon.stat.base_stat,
+                    });
+                }
+                this.setState({stats});
+                return detaillistJson;
+             })
+             .catch((error) => {
+             console.error(error);
+           });
+      }
+      
       renderPokemonList = () => {
        return  this.state.pokemons.map((pokemon ,i) => {
              return (
                 <View key={i} style={{justifyContent: 'center', alignItems: 'center'}}>
                   <View style={{borderBottomWidth: 6,borderBottomColor: '#BBB'}}>
-                    <Text>{pokemon.name}</Text>
-                    <Image style={styles.logo} source={{uri: pokemon.pic}}/>
+                      <TouchableOpacity onPress={ () => this.state.id = pokemon.id} >
+                        <Text>  {pokemon.name}!{pokemon.id}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={this.fetchPokemonsDetails}>
+                        <Image style={styles.logo} source={{uri: pokemon.pic}}/>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => Alert.alert(
+            'Alert Title',
+            null,
+            [
+              {text: 'Foo', onPress: () => console.log('Foo Pressed!')},
+              {text: 'Bar', onPress: () => console.log('Bar Pressed!')},
+              {text: 'Baz', onPress: () => console.log('Baz Pressed!')},
+            ]
+          )}>
+                        <Text>  Details </Text>
+                      </TouchableOpacity>
+                    
+                  
+                    
                   </View>
                 </View>
              );
