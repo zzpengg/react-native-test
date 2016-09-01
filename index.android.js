@@ -28,9 +28,10 @@ class test extends Component {
        result:"",
        page:'',
        active:false,
-       id:0,
+       id:1,
+       name:'',
        pokemons: [],
-       stats:[],
+       attr: '',
        limit:0
      }
    }
@@ -82,14 +83,12 @@ class test extends Component {
             .then((detaillistJson) => {
                 console.log(detaillistJson);
                 // this.setState({pokemons: responseJson});
-                let stats =[] ;
+                this.setState({name: detaillistJson.name});
+                console.log(this.state.name);
                 for(let pokemon of detaillistJson.stats) {
-                    stats.push({
-                    name:pokemon.stat.name,
-                    base_stat:pokemon.stat.base_stat,
-                    });
+                    this.setState({attr:this.state.attr + pokemon.stat.name + ' : ' + pokemon.base_stat + '\n'});
                 }
-                this.setState({stats});
+                
                 return detaillistJson;
              })
              .catch((error) => {
@@ -108,19 +107,6 @@ class test extends Component {
                       <TouchableOpacity onPress={this.fetchPokemonsDetails}>
                         <Image style={styles.logo} source={{uri: pokemon.pic}}/>
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={() => Alert.alert(
-            'Alert Title',
-            null,
-            [
-              {text: 'Foo', onPress: () => console.log('Foo Pressed!')},
-              {text: 'Bar', onPress: () => console.log('Bar Pressed!')},
-              {text: 'Baz', onPress: () => console.log('Baz Pressed!')},
-            ]
-          )}>
-                        <Text>  Details </Text>
-                      </TouchableOpacity>
-                    
-                  
                     
                   </View>
                 </View>
@@ -142,6 +128,16 @@ class test extends Component {
            <TouchableOpacity onPress={this.fetchPokemons}>
             <Text>  抓寶可夢瞜!</Text>
            </TouchableOpacity>
+           <TouchableOpacity onPress={() => Alert.alert(
+                        `${this.state.name}`,
+                        `${this.state.attr}`,
+                        [
+                          {text: 'ok', onPress: () => console.log('Foo Pressed!')},
+                          {text: 'cancel', onPress: () => console.log('Bar Pressed!')},
+                        ]
+                       )}>
+                        <Text>  Details </Text>
+                      </TouchableOpacity>
         <ScrollView style={{ alignSelf: 'stretch', backgroundColor: 'lightblue'}}>
             {this.renderPokemonList()}
           </ScrollView>
