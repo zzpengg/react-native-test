@@ -85,6 +85,7 @@ class test extends Component {
                 // this.setState({pokemons: responseJson});
                 this.setState({name: detaillistJson.name});
                 console.log(this.state.name);
+                this.setState({attr:''});
                 for(let pokemon of detaillistJson.stats) {
                     this.setState({attr:this.state.attr + pokemon.stat.name + ' : ' + pokemon.base_stat + '\n'});
                 }
